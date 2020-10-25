@@ -85,6 +85,20 @@ type ActionFunc func(*Lexer, []string) error
 
 func (m ActionFunc) applyAction(lexer *Lexer, groups []string) error { return m(lexer, groups) } // nolint: golint
 
+// Many applies many actions as a single Action
+func Many(actions ...Action) Action {
+	return ActionFunc(func(lexer *Lexer, groups []string) error {
+		for _, action := range actions {
+			err := action.applyAction(lexer, groups)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+}
+
 // Pop to the previous state.
 func Pop() Action {
 	return ActionFunc(func(lexer *Lexer, groups []string) error {
